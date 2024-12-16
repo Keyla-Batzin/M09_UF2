@@ -1,10 +1,10 @@
 /*  */
 
 public class Fil extends Thread {
-    private String nom; // Nombre del hilo
+    private String nom; // Nom del fil
 
     public Fil(String nom) {
-        this.nom = nom; // Inicializa el nombre
+        this.nom = nom; // Inicialitza el nom
     }
 
     @Override
@@ -12,9 +12,8 @@ public class Fil extends Thread {
         try {
             for (int i = 1; i <= 9; i++) {
                 System.out.println(nom + " " + i);
-                Thread.sleep((int) (Math.random() * 200) + 100); // Pausa entre 100ms y 300ms
+                Thread.sleep(100); // Pausa fixa per a més control
             }
-            System.out.println("Termina el fil " + nom); // Mensaje al finalizar
         } catch (InterruptedException e) {
             System.out.println("El fil " + nom + " ha estat interromput.");
         }
