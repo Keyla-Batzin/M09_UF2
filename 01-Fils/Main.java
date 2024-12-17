@@ -1,32 +1,25 @@
-/*  */
 
 public class Main {
     public static void main(String[] args) {
-        // Crear instàncies de fils
-        Fil fil1 = new Fil("Juan");
-        Fil fil2 = new Fil("Pepe");
+        Object lock = new Object(); // Objecte de bloqueig per sincronitzar els fils
 
-        // Inicia primer el fil "Pepe"
-        fil2.start();
+        Fil filJuan = new Fil("Juan", lock, true); // El primer fil inicia actiu
+        Fil filPepe = new Fil("Pepe", lock, false); // El segon fil inicia en espera
+
+        System.out.println("Termina thread main");
+
+        // Iniciar els fils
+        filJuan.start();
+        filPepe.start();
+
         try {
-            fil2.join(); // Espera que "Pepe" acabi completament
+            filJuan.join(); // Esperem que "Juan" acabi
+            filPepe.join(); // Esperem que "Pepe" acabi
         } catch (InterruptedException e) {
-            System.out.println("El fil Pepe ha estat interromput.");
+            System.out.println("El fil principal ha estat interromput.");
         }
 
-        // Inicia després el fil "Juan"
-        fil1.start();
-        try {
-            fil1.join(); // Espera que "Juan" acabi completament
-        } catch (InterruptedException e) {
-            System.out.println("El fil Juan ha estat interromput.");
-        }
-
-        // Mostra els missatges finals
         System.out.println("Termina el fil Pepe");
         System.out.println("Termina el fil Juan");
-
-        // Missatge de terminació del fil principal
-        System.out.println("Termina thread main");
     }
 }
