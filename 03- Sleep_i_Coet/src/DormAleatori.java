@@ -1,41 +1,41 @@
 import java.util.Random;
 
 public class DormAleatori extends Thread {
-    private final String nom;
-    private final long temps; // Tiempo
+    private final long tempsInici;
 
+    // Constructor que guarda el tiempo de creación y asigna un nombre al hilo
     public DormAleatori(String nom) {
-        this.nom = nom;
-        temps = System.currentTimeMillis(); // Calcula el tiempo
+        super(nom); // Asigna el nombre al hilo
+        this.tempsInici = System.currentTimeMillis(); // Guarda el instante de creación
     }
 
     @Override
     public void run() {
-        Random random = new Random();
+        Random random = new Random(); // Generador de números aleatorios
+
         for (int i = 0; i < 10; i++) {
-            long temps_total = System.currentTimeMillis() - this.temps;
-            long interval_aleatori = random.nextInt(1000);
-            System.out.println(nom + "(" + i + ")" + "a dormir " + interval_aleatori + "ms total   " + temps_total);
+            int intervalAleatori = random.nextInt(1000); // Intervalo entre 0 y 999 ms
+            long tempsTranscorregut = System.currentTimeMillis() - tempsInici; // Calcula el tiempo total
+
+            // Muestra la información
+            System.out.printf("%s(%d) a dormir %dms total %dms%n", 
+                getName(), i, intervalAleatori, tempsTranscorregut);
+
             try {
-                Thread.sleep(interval_aleatori);
+                Thread.sleep(intervalAleatori); // Pausa el hilo
             } catch (InterruptedException e) {
-                System.out.println("El fil " + nom + " ha estat interromput.");
+                System.err.println("El hilo ha sido interrumpido.");
             }
         }
     }
 
     public static void main(String[] args) {
-        DormAleatori instancia01 = new DormAleatori("Joan");
-        DormAleatori instancia02 = new DormAleatori("Pep");
+        DormAleatori joan = new DormAleatori("Joan");
+        DormAleatori pep = new DormAleatori("Pep");
 
-        instancia01.start();
-        instancia02.start();
+        joan.start(); // Inicia el hilo "Joan"
+        pep.start(); // Inicia el hilo "Pep"
 
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            System.out.println("El Thread principal ha estat interromput.");
-        }
         System.out.println("-- Fi de main -----------");
     }
 }

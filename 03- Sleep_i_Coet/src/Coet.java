@@ -1,27 +1,67 @@
-public class Coet{
-    private static Motor[] motors = new Motor[4];
-    public static void main(String[] args) {
-        int potencia = 3; // Añadir classe Entrada
-        arranca();
-        passaAPotencia(potencia);
+public class Coet {
+    private Motor[] motors;
+
+    public Coet() {
+        motors = new Motor[4];
+        for (int i = 0; i < motors.length; i++) {
+            motors[i] = new Motor();
+            motors[i].setName("Motor " + i);
+            motors[i].start();
+        }
     }
 
-    public static void passaAPotencia(int p){
-        if(p < 10 && p > 0){
-            System.out.println("Passant a potència " + p);
-            for(int i=0; i < motors.length; i++){
-                motors[i].setPotencia(p);
-                System.out.println("Motor " + i + ": " + "No se " + "Objectiu: " + motors[i].getObjectiu() + " Actual: " + motors[i].getPotencia());
+    public void passaAPotencia(int p) {
+        if (p < 0 || p > 10) {
+            System.out.println("Error: La potència ha d'estar entre 0 i 10.");
+            return;
+        }
+        System.out.printf("Passant a potència %d%n", p);
+        for (Motor motor : motors) {
+            motor.setPotencia(p);
+        }
+
+        // Espera fins que tots els motors arribin a l'objectiu
+        boolean totsComplets;
+        do {
+            totsComplets = true;
+            for (Motor motor : motors) {
+                synchronized (motor) {
+                    if (motor.getPotenciaActual() != p) {
+                        totsComplets = false;
+                        break;
+                    }
+                }
             }
-        }else{
-            System.out.println("Error: valor no valid");
-        }
+            try {
+                Thread.sleep(500); // Evita sobrecarregar el processador
+            } catch (InterruptedException e) {
+                System.err.println("Execució interrompuda!");
+            }
+        } while (!totsComplets);
     }
 
-    public static void arranca(){
-        for(int i=0; i < motors.length; i++){
-            motors[i] = new Motor(0, 0);
+    public static void main(String[] args) {
+        Coet coet = new Coet();
+        while (true) {
+            System.out.print("Introdueix la potència objectiu (0 per sortir): ");
+            String entrada = Entrada.readLine();
+
+            // Verifica que l'entrada no sigui buida
+            if (entrada.isEmpty()) {
+                System.out.println("Si us plau, introdueix un número vàlid.");
+                continue;
+            }
+
+            try {
+                int potencia = Integer.parseInt(entrada);
+                if (potencia == 0) {
+                    coet.passaAPotencia(0);
+                    break;
+                }
+                coet.passaAPotencia(potencia);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Introdueix un número enter vàlid.");
+            }
         }
     }
-
 }
