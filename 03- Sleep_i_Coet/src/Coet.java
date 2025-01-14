@@ -1,67 +1,62 @@
 public class Coet {
-    private Motor[] motors;
+    private Motor motor = new Motor();
 
     public Coet() {
-        motors = new Motor[4];
-        for (int i = 0; i < motors.length; i++) {
-            motors[i] = new Motor();
-            motors[i].setName("Motor " + i);
-            motors[i].start();
+        for (int i = 0; i < 4; i++) {
+            motor = new Motor();
         }
     }
 
-    public void passaAPotencia(int p) {
-        if (p < 0 || p > 10) {
-            System.out.println("Error: La potència ha d'estar entre 0 i 10.");
+    public void passaAPotencia(int potencia) {
+        if (potencia < 0 || potencia > 10) {
+            System.out.println("Potència no vàlida!");
             return;
         }
-        System.out.printf("Passant a potència %d%n", p);
-        for (Motor motor : motors) {
-            motor.setPotencia(p);
+        System.out.println("Passant a potència " + potencia);
+        for (int i = 0; i < 4; i++) {
+            motor.setPotencia(potencia);
         }
+    }
 
-        // Espera fins que tots els motors arribin a l'objectiu
-        boolean totsComplets;
-        do {
-            totsComplets = true;
-            for (Motor motor : motors) {
-                synchronized (motor) {
-                    if (motor.getPotenciaActual() != p) {
-                        totsComplets = false;
-                        break;
-                    }
+    public void arranca() {
+        for (int i = 0; i < 4; i++) {
+            motor.setId(0);
+            motor.setPotencia(0); // Arrenca els motors a una potència inicial
+        }
+    }
+
+    public void gestionaPotencies() {
+        try {
+            while (true) {
+                String entrada = Entrada.readLine();  // Cambiado a Entrada.readLine()
+                if (entrada == null || entrada.trim().isEmpty()) {
+                    break;
+                }
+                int potencia = Integer.parseInt(entrada.trim());
+                passaAPotencia(potencia);
+
+                // Finaliza cuando todos los motores estén apagados
+                if (todosApagados()) {
+                    break;
                 }
             }
-            try {
-                Thread.sleep(500); // Evita sobrecarregar el processador
-            } catch (InterruptedException e) {
-                System.err.println("Execució interrompuda!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean todosApagados() {
+        for (int i = 0; i < 4; i++) {
+            if (!motor.estaApagat()) {
+                return false;
             }
-        } while (!totsComplets);
+        }
+        return true;
     }
 
     public static void main(String[] args) {
         Coet coet = new Coet();
-        while (true) {
-            System.out.print("Introdueix la potència objectiu (0 per sortir): ");
-            String entrada = Entrada.readLine();
-
-            // Verifica que l'entrada no sigui buida
-            if (entrada.isEmpty()) {
-                System.out.println("Si us plau, introdueix un número vàlid.");
-                continue;
-            }
-
-            try {
-                int potencia = Integer.parseInt(entrada);
-                if (potencia == 0) {
-                    coet.passaAPotencia(0);
-                    break;
-                }
-                coet.passaAPotencia(potencia);
-            } catch (NumberFormatException e) {
-                System.out.println("Error: Introdueix un número enter vàlid.");
-            }
-        }
+        coet.arranca(); // Arrancar el cohete
+        coet.gestionaPotencies(); // Gestión de las potencias
     }
 }
