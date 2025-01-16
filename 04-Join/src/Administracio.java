@@ -4,7 +4,7 @@ public class Administracio extends Thread {
     
     public Administracio() {
         for(int i=0; i < poblacio_activa.length; i++){
-            poblacio_activa[i] = new Treballador(25000, 20, 65, 65);
+            poblacio_activa[i] = new Treballador(25000, 20, 65);
             poblacio_activa[i].start();
         }
     }
@@ -14,7 +14,7 @@ public class Administracio extends Thread {
         admin.start();
         for (int i=0; i < admin.poblacio_activa.length; i++) {
             try {
-                System.out.println("Ciutadà-" + i + "-> edat: " + admin.poblacio_activa[i].getEdat() + "/ total: " + admin.poblacio_activa[i].getCobrat());
+                System.out.println("Ciutadà-" + i + "-> edat: " + admin.poblacio_activa[i].getEdat() + " / total: " + admin.poblacio_activa[i].getCobrat());
                 admin.poblacio_activa[i].join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
