@@ -1,52 +1,69 @@
-public class Coet {
-    private Motor motor = new Motor();
+import java.util.concurrent.TimeUnit;
 
+public class Coet {
+    private final Motor[] motors = new Motor[4];
+    
+
+
+
+
+    
     public Coet() {
-        for (int i = 0; i < 4; i++) {
-            motor = new Motor();
+        for (int i = 0; i < motors.length; i++) {
+            motors[i] = new Motor(i);
         }
     }
 
     public void passaAPotencia(int potencia) {
-        if (potencia < 0 || potencia > 10) {
-            System.out.println("Potència no vàlida!");
+        if (potencia < Motor.MIN_POWER || potencia > Motor.MAX_POWER) {
+            System.out.println("Invalid power!");
             return;
         }
         System.out.println("Passant a potència " + potencia);
-        for (int i = 0; i < 4; i++) {
-            motor.setPotencia(potencia);
+        for (Motor motor : motors) {
+            executorService.submit(() -> motor.setPotencia(potencia));
         }
     }
 
     public void arranca() {
-        for (int i = 0; i < 4; i++) {
-            motor.setId(0);
-            motor.setPotencia(0); // Arrenca els motors a una potència inicial
+        for (Motor motor : motors) {
+            motor.setPotencia(0);
         }
     }
 
     public void gestionaPotencies() {
         try {
             while (true) {
-                String entrada = Entrada.readLine();  // Cambiado a Entrada.readLine()
+                String entrada = Entrada.readLine();
                 if (entrada == null || entrada.trim().isEmpty()) {
                     break;
                 }
-                int potencia = Integer.parseInt(entrada.trim());
-                passaAPotencia(potencia);
+                try {
+                    int potencia = Integer.parseInt(entrada.trim());
+                    passaAPotencia(potencia);
+                } catch (NumberFormatException e) {
+                    System.out.println("Potència no vàlida");
+                }
 
-                // Finaliza cuando todos los motores estén apagados
+                // Exit when all motors are off
                 if (todosApagados()) {
                     break;
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+            }
         }
     }
 
     public boolean todosApagados() {
-        for (int i = 0; i < 4; i++) {
+        for (Motor motor : motors) {
             if (!motor.estaApagat()) {
                 return false;
             }
@@ -56,7 +73,7 @@ public class Coet {
 
     public static void main(String[] args) {
         Coet coet = new Coet();
-        coet.arranca(); // Arrancar el cohete
-        coet.gestionaPotencies(); // Gestión de las potencias
+        coet.arranca();
+        coet.gestionaPotencies();
     }
 }
