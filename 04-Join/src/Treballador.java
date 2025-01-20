@@ -13,7 +13,8 @@ public class Treballador extends Thread {
         this.edat_inici_treball = edat_inici_treball;
         this.edat_fi_treball = edat_fi_treball;
         this.edat_actual = 0;
-        cobrat = 0.0f;
+        this.cobrat = 0.0f;
+        this.rnd = new Random();
     }
 
     public float getCobrat() {
@@ -36,25 +37,16 @@ public class Treballador extends Thread {
 
     @Override
     public void run() {
-        int sou_mes = cobra();
-        int impostos = pagaImpostos(sou_mes);
-        cobrat = sou_mes - impostos; // Acumula el salario mensual después de impuestos
-        this.cobrat = cobrat * 12;
+        int sou_mes = cobra(); // Salario mensual bruto
+        int impostos_mes = pagaImpostos(sou_mes); // Impuestos mensuales
+        float sou_net_mes = sou_mes - impostos_mes; // Salario neto mensual
 
-        int anysTreball = 0;
-        for(int i=0; i < 65; i++){
-            this.edat_actual++;
-            if(getEdat() >= 20 && getEdat() <= 65){
-                anysTreball++;
+        // Simula el ciclo de vida del trabajador
+        while (edat_actual <= edat_fi_treball - 1) {
+            if (edat_actual >= edat_inici_treball) {
+                cobrat += sou_net_mes * 12; // Acumula salario anual neto
             }
-        }
-
-        this.cobrat = cobrat * anysTreball;
-
-        try {
-            Thread.sleep(2000); // Simula trabajo con 2 segundos de pausa
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            edat_actual++; // Incrementa la edad
         }
     }
 }
