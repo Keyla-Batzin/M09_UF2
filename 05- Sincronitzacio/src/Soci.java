@@ -19,13 +19,11 @@ public class Soci extends Thread {
         for (int any = 1; any < maxAnys; any++) {
             for (int mes = 1; mes <= 12; mes++) {
                 if (mes % 2 == 0) {
-                    // Meses pares: ingreso
-                    float saldoActual = compte.getSaldo();
-                    compte.setSaldo(saldoActual + aportacio);
+                    // Meses pares: ingresar
+                    compte.ingresa(aportacio);
                 } else {
-                    // Meses impares: retiro
-                    float saldoActual = compte.getSaldo();
-                    compte.setSaldo(saldoActual - aportacio);
+                    // Meses impares: retirar
+                    compte.retira(aportacio);
                 }
                 // Espera aleatoria para simular el paso del tiempo
                 try {

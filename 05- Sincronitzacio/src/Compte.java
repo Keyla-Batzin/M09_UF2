@@ -7,14 +7,14 @@ public class Compte {
     }
 
     // Método público para obtener la instancia única
-    public static Compte getInstance() {
+    public static synchronized Compte getInstance() {
         if (compte == null) { // Si aún no se ha creado la instancia
             compte = new Compte();
         }
         return compte; // Devuelve siempre la misma instancia
     }
 
-    public float getSaldo() {
+    public synchronized float getSaldo() {
         return saldo;
     }
 
@@ -22,12 +22,11 @@ public class Compte {
         this.saldo = saldo;
     }
 
-    public void ingresa(float ingres) {
+    public synchronized void ingresa(float ingres) {
         saldo += ingres;
     }
 
-    public void retira(float retirada) {
+    public synchronized void retira(float retirada) {
         saldo -= retirada;
-        ;
     }
 }
