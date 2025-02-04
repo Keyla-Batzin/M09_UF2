@@ -1,36 +1,35 @@
 import java.util.Random;
 
 class Assistent extends Thread {
-    private final Esdeveniment event; // Referencia al evento donde se registrará
-    private final String nom; // Nombre del asistente
-    private final Random random = new Random(); // Números aleatorios
+    private final Esdeveniment event; // Referència a l'esdeveniment
+    private final String nom; // Nom de l'assistent
+    private final Random random = new Random(); // Generador de nombres aleatoris
 
     public Assistent(String nom, Esdeveniment event) {
-        this.nom = nom; // Asigna el nombre del asistente
-        this.event = event; // Asigna el evento al que pertenece
+        this.nom = nom;
+        this.event = event;
     }
 
     @Override
     public void run() {
-        while (true) { // Bucle infinito
+        while (true) {
             try {
-                if (random.nextBoolean()) { // 50% de probabilidad de reservar o cancelar
-                    event.ferReserva(this); // Intenta hacer una reserva
+                if (random.nextBoolean()) {
+                    event.ferReserva(this); // Intenta reservar plaça
                 } else {
-                    event.cancelaReserva(this); // Intenta cancelar su reserva
+                    event.cancelaReserva(this); // Intenta cancel·lar una reserva
                 }
 
-                // Espera un tiempo aleatorio entre 0 y 1000 ms antes de la siguiente acción
+                // Espera un temps aleatori entre 0 i 1000 ms
                 Thread.sleep(random.nextInt(1000));
-
             } catch (InterruptedException e) {
-                System.out.println(nom + " ha estat interromput."); // Mensaje si el hilo es interrumpido
-                break; // Sale del bucle si el hilo es interrumpido
+                System.out.println(nom + " ha estat interromput.");
+                break; // Interromp l'execució del fil
             }
         }
     }
 
     public String getNom() {
-        return nom; // Devuelve el nombre del asistente
+        return nom;
     }
 }
