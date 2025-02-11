@@ -1,16 +1,20 @@
 public class Forquilla {
-    public int idForquilla;
-    private volatile boolean enUs = false;
+    private int idForquilla; // Identificador del tenedor
+    private boolean enUs; // Flag para saber si está en uso
 
-    // Constructor
+    // Constructor por defecto
     public Forquilla() {
+        this.idForquilla = 0; // Valor por defecto
+        this.enUs = false; // Inicialmente no está en uso
     }
 
+    // Constructor con número de tenedor
     public Forquilla(int idForquilla) {
         this.idForquilla = idForquilla;
+        this.enUs = false; // Inicialmente no está en uso
     }
 
-    // Getters i Setters
+    // Getters y Setters
     public int getIdForquilla() {
         return idForquilla;
     }
@@ -25,9 +29,5 @@ public class Forquilla {
 
     public void setEnUs(boolean enUs) {
         this.enUs = enUs;
-    }
-
-    public boolean ocupat() {
-        return this.enUs;
     }
 }

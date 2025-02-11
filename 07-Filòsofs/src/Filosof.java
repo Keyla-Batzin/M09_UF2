@@ -1,9 +1,8 @@
 public class Filosof extends Thread {
-    private int id = 0;
-    public Forquilla forquillaDreta = new Forquilla();
-    public Forquilla forquillaEsquerra = new Forquilla();
-    public static int gana = 0;
-    public String nom;
+    public int id;
+    public Forquilla forquillaEsquerra;
+    public Forquilla forquillaDreta;
+    public int gana = 0;
 
     public Filosof(int id, Forquilla esquerra, Forquilla dreta) {
         this.id = id;
@@ -11,69 +10,67 @@ public class Filosof extends Thread {
         this.forquillaDreta = dreta;
     }
 
-    public boolean menjar() {
-        if (!forquillaEsquerra.ocupat()) {
-            forquillaDreta.setEnUs(true);
-            System.out
-                    .println("Filòsof: fil " + id + " agafa la forquilla esquerra "
-                            + forquillaEsquerra.getIdForquilla());
-            if (forquillaDreta.ocupat()) {
+    public void menjar() {
+        // Intenta coger el tenedor izquierdo
+        if (!forquillaEsquerra.isEnUs()) {
+            forquillaEsquerra.setEnUs(true);
+            System.out.println("Filòsof " + id + " agafa la forquilla esquerra " + forquillaEsquerra.getIdForquilla());
+
+            // Intenta coger el tenedor derecho
+            if (!forquillaDreta.isEnUs()) {
+                forquillaDreta.setEnUs(true);
+                System.out.println("Filòsof " + id + " agafa la forquilla dreta " + forquillaDreta.getIdForquilla());
+
+                // Come durante 1-2 segundos
+                System.out.println("Filòsof " + id + " està menjant.");
+                try {
+                    Thread.sleep(1000 + (int) (Math.random() * 1000));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // Libera los tenedores
+                forquillaEsquerra.setEnUs(false);
                 forquillaDreta.setEnUs(false);
-                System.out
-                        .println("Filòsof: fil " + id + " deixa l'esquerra " + "(" + forquillaEsquerra.getIdForquilla()
-                                + ")" + "i espera dreta(ocupada)");
-                gana++;
-                System.out.println("gana = " + gana);
+                System.out.println("Filòsof " + id + " deixa les forquilles.");
+                gana = 0; // Resetea el contador de hambre
             } else {
-                forquillaEsquerra.setEnUs(true);
-                System.out
-                        .println("Filòsof: fil " + id + " agafa la forquilla dreta " + forquillaDreta.getIdForquilla());
-                System.out.println("menja");
-                gana = 0;
-                return true;
+                // Si no puede coger el tenedor derecho, suelta el izquierdo
+                forquillaEsquerra.setEnUs(false);
+                System.out.println("Filòsof " + id + " deixa l'esquerra(" + forquillaEsquerra.getIdForquilla() + ") i espera (dreta ocupada)");
+                gana++;
+                System.out.println("Filòsof " + id + " gana=" + gana);
             }
         } else {
+            // Si no puede coger el tenedor izquierdo, incrementa el hambre
+            System.out.println("Filòsof " + id + " no pot agafar la forquilla esquerra. Espera...");
             gana++;
-            System.out.println("gana = " + gana);
+            System.out.println("Filòsof " + id + " gana=" + gana);
         }
-        return false;
     }
 
-    public static void pensar() {
-        System.out.println("pensa");
+    public void pensar() {
+        System.out.println("Filòsof " + id + " està pensant.");
         gana++;
-    }
-
-    public static int getGana() {
-        return gana;
-    }
-
-    public static void setGana(int gana) {
-        Filosof.gana = gana;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
+        try {
+            Thread.sleep(1000 + (int) (Math.random() * 1000)); // Piensa durante 1-2 segundos
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void run() {
-        try {
+        while (true) {
             menjar();
-            boolean menjar = menjar();
-            if (!menjar) {
-                Thread.sleep(1000 + (int) (Math.random() * 1000)); // Espera i torna a intentar-ho
-                menjar();
-            } else {
-                Thread.sleep(1000 + (int) (Math.random() * 1000)); // Menja i espera 1/2 s
+            if (gana > 0) {
+                try {
+                    Thread.sleep(500 + (int) (Math.random() * 500)); // Espera 0.5-1 segundo antes de volver a intentar
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             pensar();
-        } catch (InterruptedException E) {
-            System.out.println("Error hilo");
         }
     }
 }
