@@ -51,7 +51,6 @@ public class Filosof extends Thread {
 
     public void pensar() {
         System.out.println("Filòsof " + id + " està pensant.");
-        gana++;
         try {
             Thread.sleep(1000 + (int) (Math.random() * 1000)); // Piensa durante 1-2 segundos
         } catch (InterruptedException e) {
@@ -65,7 +64,8 @@ public class Filosof extends Thread {
             menjar();
             if (gana > 0) {
                 try {
-                    Thread.sleep(500 + (int) (Math.random() * 500)); // Espera 0.5-1 segundo antes de volver a intentar
+                    // Espera un tiempo aleatorio
+                    Thread.sleep(500 + (int) (Math.random() * 500));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
