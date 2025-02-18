@@ -18,7 +18,7 @@ public class Taula {
             Forquilla dreta = forquilles[(i + 1) % numFilo]; // Tenedor derecho (circular)
             comensals[i] = new Filosof(i, esquerra, dreta);
         }
-    }  ()
+    }
 
     // Método para mostrar la mesa
     public static void showTaula() {
@@ -28,7 +28,7 @@ public class Taula {
                     " dret:" + comensals[i].forquillaDreta.getIdForquilla());
         }
         System.out.println("--------------------------------------------------");
-    }zniarias sinnO9gw
+    }
 
     // Método para iniciar los hilos de los filósofos
     public static void cridaATaula() {

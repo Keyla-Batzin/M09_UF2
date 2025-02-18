@@ -28,22 +28,26 @@ public class Forquilla {
         return propietari;
     }
 
-    public void setPropietari(int propietari) {
+    public synchronized void setPropietari(int propietari) {
         this.propietari = propietari;
     }
 
     // Método para verificar si el tenedor está libre
-    public boolean esLliure() {
+    public synchronized boolean esLliure() {
         return this.propietari == LLIURE;
     }
-    
+
     // Método para liberar el tenedor
-    public void alliberar() {
+    public synchronized void alliberar() {
         this.propietari = LLIURE;
+        notifyAll(); // Notifica a todos los hilos que están esperando
     }
 
     // Método para asignar el tenedor a un filósofo
-    public void assignar(int idFilosof) {
+    public synchronized void assignar(int idFilosof) throws InterruptedException {
+        while (!esLliure()) {
+            wait(); // Espera hasta que el tenedor esté libre
+        }
         this.propietari = idFilosof;
     }
 }

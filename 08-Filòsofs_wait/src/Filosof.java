@@ -10,63 +10,64 @@ public class Filosof extends Thread {
         this.forquillaDreta = dreta;
     }
 
-    public void menjar() {
+    public void menjar() throws InterruptedException {
         // Intenta coger el tenedor izquierdo
         if (!forquillaEsquerra.esLliure()) {
-            forquillaEsquerra.setEnUs(true);
+            agafaForquillaEsquerra();
             System.out.println("Filòsof " + id + " agafa la forquilla esquerra " + forquillaEsquerra.getIdForquilla());
 
             // Intenta coger el tenedor derecho
-            if (!forquillaDreta.isEnUs()) {
-                forquillaDreta.setEnUs(true);
+            if (!forquillaDreta.esLliure()) {
+                agafaForquillaDreta();
                 System.out.println("Filòsof " + id + " agafa la forquilla dreta " + forquillaDreta.getIdForquilla());
 
                 // Come durante 1-2 segundos
                 System.out.println("Filòsof " + id + " està menjant.");
                 try {
                     Thread.sleep(1000 + (int) (Math.random() * 1000));
-                } catch (InterruptedException e) {  b b 
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
                 // Libera los tenedores
-                forquillaEsquerra.setEnUs(false);
-                forquillaDreta.setEnUs(false);
+                deixaForquilles();
                 System.out.println("Filòsof " + id + " deixa les forquilles.");
                 gana = 0; // Resetea el contador de hambre
             } else {
                 // Si no puede coger el tenedor derecho, suelta el izquierdo
-                forquillaEsquerra.setEnUs(false);
+                deixaForquilles();
                 System.out.println("Filòsof " + id + " deixa l'esquerra(" + forquillaEsquerra.getIdForquilla() + ") i espera (dreta ocupada)");
                 gana++;
-                System.out.println("Filòsof " + id + " gana=" + gana);
+                System.out.println("Filòsof " + id + " gana = " + gana);
             }
         } else {
             // Si no puede coger el tenedor izquierdo, incrementa el hambre
             System.out.println("Filòsof " + id + " no pot agafar la forquilla esquerra. Espera...");
             gana++;
-            System.out.println("Filòsof " + id + " gana=" + gana);
+            System.out.println("Filòsof " + id + " gana = " + gana);
         }
     }
 
     // Filo agafa les 2 forquilles
-    public void agafaForquilles(){
-
+    public void agafaForquilles() throws InterruptedException {
+        agafaForquillaEsquerra();
+        agafaForquillaDreta();
     }
 
     // Filo agafa ESSQUERRA
-    public void agafaForquillaEsquerra(){
-        
+    public void agafaForquillaEsquerra() throws InterruptedException {
+        forquillaEsquerra.assignar(id);
     }
 
     // Filo agafa DRETA
-    public void agafaForquillaDreta(){
-        
+    public void agafaForquillaDreta() throws InterruptedException {
+        forquillaDreta.assignar(id);
     }
 
     // Filo deixa les 2 forquilles
     public void deixaForquilles(){
-
+        forquillaEsquerra.alliberar();
+        forquillaDreta.alliberar();
     }
 
     public void pensar() {
