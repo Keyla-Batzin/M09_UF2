@@ -11,38 +11,36 @@ public class Filosof extends Thread {
     }
 
     public void menjar() throws InterruptedException {
-        // Intenta coger el tenedor izquierdo
-        if (!forquillaEsquerra.esLliure()) {
-            agafaForquillaEsquerra();
-            System.out.println("Filòsof " + id + " agafa la forquilla esquerra " + forquillaEsquerra.getIdForquilla());
-
-            // Intenta coger el tenedor derecho
-            if (!forquillaDreta.esLliure()) {
-                agafaForquillaDreta();
-                System.out.println("Filòsof " + id + " agafa la forquilla dreta " + forquillaDreta.getIdForquilla());
-
-                // Come durante 1-2 segundos
-                System.out.println("Filòsof " + id + " està menjant.");
-                try {
-                    Thread.sleep(1000 + (int) (Math.random() * 1000));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                // Libera los tenedores
-                deixaForquilles();
-                System.out.println("Filòsof " + id + " deixa les forquilles.");
-                gana = 0; // Resetea el contador de hambre
-            } else {
-                // Si no puede coger el tenedor derecho, suelta el izquierdo
-                deixaForquilles();
-                System.out.println("Filòsof " + id + " deixa l'esquerra(" + forquillaEsquerra.getIdForquilla() + ") i espera (dreta ocupada)");
+        if (id % 2 == 0) {
+            if (!forquillaEsquerra.esLliure() || !forquillaDreta.esLliure()) {
+                System.out.println("Filòsof " + id + " no pot menjar, deixa les forquilles.");
                 gana++;
                 System.out.println("Filòsof " + id + " gana = " + gana);
+                return;
             }
+            agafaForquillaEsquerra();
+            agafaForquillaDreta();
         } else {
-            // Si no puede coger el tenedor izquierdo, incrementa el hambre
-            System.out.println("Filòsof " + id + " no pot agafar la forquilla esquerra. Espera...");
+            if (!forquillaDreta.esLliure() || !forquillaEsquerra.esLliure()) {
+                System.out.println("Filòsof " + id + " no pot menjar, deixa les forquilles.");
+                gana++;
+                System.out.println("Filòsof " + id + " gana = " + gana);
+                return;
+            }
+            agafaForquillaDreta();
+            agafaForquillaEsquerra();
+        }
+
+        // Comer si tiene ambas forquillas
+        if (forquillaEsquerra.getPropietari() == id && forquillaDreta.getPropietari() == id) {
+            System.out.println("Filòsof " + id + " està menjant.");
+            Thread.sleep(1000 + (int) (Math.random() * 1000));
+            deixaForquilles();
+            System.out.println("Filòsof " + id + " deixa les forquilles.");
+            gana = 0;
+        } else {
+            deixaForquilles();
+            System.out.println("Filòsof " + id + " no pot menjar, deixa les forquilles.");
             gana++;
             System.out.println("Filòsof " + id + " gana = " + gana);
         }
@@ -65,7 +63,7 @@ public class Filosof extends Thread {
     }
 
     // Filo deixa les 2 forquilles
-    public void deixaForquilles(){
+    public void deixaForquilles() {
         forquillaEsquerra.alliberar();
         forquillaDreta.alliberar();
     }
@@ -82,13 +80,20 @@ public class Filosof extends Thread {
     @Override
     public void run() {
         while (true) {
-            menjar();
+            try {
+                menjar();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                break;
+            }
             if (gana > 0) {
                 try {
-                    // Espera un tiempo aleatorio
                     Thread.sleep(500 + (int) (Math.random() * 500));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                    break;
                 }
             }
             pensar();
