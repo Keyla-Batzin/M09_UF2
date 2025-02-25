@@ -1,8 +1,8 @@
 public class Filosof extends Thread {
     public int id;
-    public long iniciGana;
-    public long fiGana;
-    public int gana;
+    public long iniciGana; // Momento en que comienza a intentar coger los tenedores
+    public long fiGana; // Momento en que termina de comer
+    public int gana; // Diferencia entre fiGana e iniciGana en segundos
     public Forquilla forquillaEsquerra;
     public Forquilla forquillaDreta;
     public int comptadorGana = 0;
@@ -12,18 +12,18 @@ public class Filosof extends Thread {
         this.id = id;
         this.forquillaEsquerra = esquerra;
         this.forquillaDreta = dreta;
-        this.iniciGana = System.currentTimeMillis(); // Inicializa el contador de hambre
     }
 
     // Método para comer
     public void menjar() throws InterruptedException {
-        agafarForquilles();
-        System.out.println("Fil " + id + " té forquilles esq(" + forquillaEsquerra.getIdForquilla() + ") dreta (" + forquillaDreta.getIdForquilla() + ")");
+        iniciGana = System.currentTimeMillis(); // Actualiza el momento en que comienza a intentar coger los tenedores
+        agafarForquilles(); // Intenta coger los tenedores
+        System.out.println("Fil " + id + " té forquilles esq(" + forquillaEsquerra.getIdForquilla() +") dreta (" + forquillaDreta.getIdForquilla() + ")");
         Thread.sleep(1000 + (int) (Math.random() * 1000)); // Come durante 1-2 segundos
         fiGana = System.currentTimeMillis(); // Registra el momento en que termina de comer
-        System.out.println("Fil " + id + " menja amb gana " + calculaGana());
-        resetGana();
-        deixarForquilles();
+        gana = calculaGana(); // Calcula la hambre
+        System.out.println("Fil " + id + " menja amb gana " + gana);
+        deixarForquilles(); // Libera los tenedores
         System.out.println("Fil " + id + " ha acabat de menjar");
         System.out.println("Fil " + id + " deixa les forquilles");
     }
@@ -62,13 +62,7 @@ public class Filosof extends Thread {
 
     // Método para calcular la hambre
     public int calculaGana() {
-        gana =  (int) (fiGana - iniciGana) / 1000;
-        return gana;
-    }
-
-    // Método para resetear el contador de hambre
-    public void resetGana() {
-        iniciGana = System.currentTimeMillis();
+        return (int) ((fiGana - iniciGana) / 1000); 
     }
 
     // Método de ejecución del hilo
@@ -76,13 +70,13 @@ public class Filosof extends Thread {
     public void run() {
         while (true) {
             try {
-                menjar();
+                menjar(); // Intenta comer
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 Thread.currentThread().interrupt();
                 break;
             }
-            if (comptadorGana > 0) {
+            if (gana > 0) {
                 try {
                     Thread.sleep(500 + (int) (Math.random() * 500)); // Espera 0.5-1 segundo antes de volver a intentar
                 } catch (InterruptedException e) {
@@ -91,7 +85,7 @@ public class Filosof extends Thread {
                     break;
                 }
             }
-            pensar();
+            pensar(); // Piensa
         }
     }
 }
