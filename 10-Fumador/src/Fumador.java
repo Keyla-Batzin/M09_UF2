@@ -1,4 +1,4 @@
-public class Fumador extends Thread{
+public class Fumador extends Thread {
     private int id;
     private Estanc estanc;
     private Tabac tabac;
@@ -6,7 +6,7 @@ public class Fumador extends Thread{
     private Llumi llumi;
     private int numFumades = 0;
 
-    public Fumador(Estanc estanc, int id){
+    public Fumador(Estanc estanc, int id) {
         this.estanc = estanc;
         this.id = id;
     }
@@ -15,16 +15,16 @@ public class Fumador extends Thread{
         return numFumades;
     }
 
-    public void fuma(){
+    public void fuma() {
         try {
-            if(tabac == new Tabac() && paper == new Paper() && llumi == new Llumi()){
+            if (tabac != null && paper != null && llumi != null) {
+                // Consumir los ingredientes
                 tabac = null;
                 paper = null;
                 llumi = null;
-                Thread.sleep(500 + (int) (Math.random() * 500));
-                System.out.println("Fumador " + id + " fumant");
+                Thread.sleep(500 + (int) (Math.random() * 500)); // Fumar entre 0.5 y 1 segundo
                 numFumades++;
-                System.out.println("El Fumador " + id + " ha fumat " + numFumades + " vegades");
+                System.out.println("Fumador " + id + " ha fumat " + numFumades + " vegades");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -32,37 +32,35 @@ public class Fumador extends Thread{
         }
     }
 
-    public synchronized void compraTabac(){
+    public void compraTabac() {
         tabac = estanc.venTabac();
-        System.out.println("Fumador " + id + " comprant Tabac");
+        if (tabac != null) {
+            System.out.println("Fumador " + id + " ha comprat Tabac");
+        }
     }
 
-    public synchronized void compraPaper(){
+    public void compraPaper() {
         paper = estanc.venPaper();
-        System.out.println("Fumador " + id + " comprant Paper");
+        if (paper != null) {
+            System.out.println("Fumador " + id + " ha comprat Paper");
+        }
     }
 
-    public synchronized void compraLlumi(){
+    public void compraLlumi() {
         llumi = estanc.venLlumi();
-        System.out.println("Fumador " + id + " comprant Llumí");
+        if (llumi != null) {
+            System.out.println("Fumador " + id + " ha comprat Llumí");
+        }
     }
 
     @Override
-    public synchronized void run() {
-        for(int i=0; i < 3; i++){
-            try {
-                while (!estanc.disponibilitat()) {
-                    wait();
-                }
-                compraTabac();
-                compraPaper();
-                compraLlumi();
-                fuma();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-                break;
-            }
+    public void run() {
+        while (numFumades < 3) { // Fumar hasta 3 veces
+            compraTabac();
+            compraPaper();
+            compraLlumi();
+            fuma();
         }
+        System.out.println("Fumador " + id + " ha acabat de fumar");
     }
 }

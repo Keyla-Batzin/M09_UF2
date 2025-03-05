@@ -1,103 +1,109 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Estanc extends Thread{
+public class Estanc extends Thread {
     private ArrayList<Tabac> tabacDisponible;
     private ArrayList<Paper> paperDisponible;
     private ArrayList<Llumi> llumiDisponible;
     private boolean obert = true;
 
-    public Estanc(){
-        tabacDisponible = new ArrayList<Tabac>();
-        paperDisponible = new ArrayList<Paper>();
-        llumiDisponible = new ArrayList<Llumi>();
+    public Estanc() {
+        tabacDisponible = new ArrayList<>();
+        paperDisponible = new ArrayList<>();
+        llumiDisponible = new ArrayList<>();
     }
 
-    public void nouSubministrament(){
+    public synchronized void nouSubministrament() {
         Random rnd = new Random();
-        int num = rnd.nextInt(3) + 1;
-        if(num == 1){
-            addTabac();
-            System.out.println("Afegint Tabac");
-        }else if(num == 2){
-            addPaper();
-            System.out.println("Afegint Paper");
-        }else{
-            addLlumi();
-            System.out.println("Afegint Llumí");
+        int num = rnd.nextInt(3); // 0: Tabac, 1: Paper, 2: Llumí
+        switch (num) {
+            case 0:
+                addTabac();
+                System.out.println("Afegint Tabac");
+                break;
+            case 1:
+                addPaper();
+                System.out.println("Afegint Paper");
+                break;
+            case 2:
+                addLlumi();
+                System.out.println("Afegint Llumí");
+                break;
         }
+        notifyAll(); // Notificar a los fumadores que hay nuevos ingredientes
     }
 
-    // Mètodes per afegir Suministres
-    public void addTabac(){
-        Tabac tabac = new Tabac();
-        tabacDisponible.add(tabac);
+    public synchronized void addTabac() {
+        tabacDisponible.add(new Tabac());
     }
 
-    public void addPaper(){
-        Paper paper = new Paper();
-        paperDisponible.add(paper);
+    public synchronized void addPaper() {
+        paperDisponible.add(new Paper());
     }
 
-    public void addLlumi(){
-        Llumi llumi = new Llumi();
-        llumiDisponible.add(llumi);
+    public synchronized void addLlumi() {
+        llumiDisponible.add(new Llumi());
     }
 
-    // Mètodes
-    public Tabac venTabac(){
-        Tabac tabac = null;
-        if(tabacDisponible.size() > 0){
-            tabac = tabacDisponible.get(0);
-            tabacDisponible.remove(0);
-            return tabac;
+    public synchronized Tabac venTabac() {
+        while (tabacDisponible.isEmpty() && obert) {
+            try {
+                wait(); // Esperar hasta que haya tabaco disponible
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        return tabac;
-    }
-
-    public Paper venPaper(){
-        Paper paper = null;
-        if(paperDisponible.size() > 0){
-            paper = paperDisponible.get(0);
-            paperDisponible.remove(0);
-            return paper;
+        if (!tabacDisponible.isEmpty()) {
+            return tabacDisponible.remove(0);
         }
-        return paper;
+        return null;
     }
 
-    public Llumi venLlumi(){
-        Llumi llumi = null;
-        if(llumiDisponible.size() > 0){
-            llumi = llumiDisponible.get(0);
-            llumiDisponible.remove(0);
-            return llumi;
+    public synchronized Paper venPaper() {
+        while (paperDisponible.isEmpty() && obert) {
+            try {
+                wait(); // Esperar hasta que haya papel disponible
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        return llumi;
-    }
-
-    public boolean disponibilitat(){
-        if(tabacDisponible.size() > 0 || paperDisponible.size() > 0 || llumiDisponible.size() > 0){
-            return true;
+        if (!paperDisponible.isEmpty()) {
+            return paperDisponible.remove(0);
         }
-        return false;
+        return null;
     }
 
-    public void tancarEstanc(){
+    public synchronized Llumi venLlumi() {
+        while (llumiDisponible.isEmpty() && obert) {
+            try {
+                wait(); // Esperar hasta que haya llumí disponible
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if (!llumiDisponible.isEmpty()) {
+            return llumiDisponible.remove(0);
+        }
+        return null;
+    }
+
+    public synchronized void tancarEstanc() {
         obert = false;
+        notifyAll(); // Notificar a todos los hilos que el estanco está cerrado
     }
 
     @Override
-    public synchronized void run(){
+    public void run() {
         while (obert) {
+            nouSubministrament();
             try {
-                nouSubministrament();
-                Thread.sleep(500 + (int) (Math.random() * 1000)); // Espera 0.5 - 1.5 segundo antes de volver a intentar
+                Thread.sleep(500 + (int) (Math.random() * 1000)); // Esperar entre 0.5 y 1.5 segundos
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 Thread.currentThread().interrupt();
                 break;
             }
-            // tancarEstanc(); // Parar el bucle
         }
+        System.out.println("Estanc tancat");
     }
 }

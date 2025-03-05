@@ -10,7 +10,7 @@ public class Barri {
         fumadors = new ArrayList<>(); // Inicializa la lista de fumadores
     }
 
-    // Método para iniciar los fumadores
+    // Método para iniciar los fumadores y el estanco
     public void inicaFumadors() {
         // Crea 3 fumadores y los añade a la lista
         for (int i = 0; i < 3; i++) {
@@ -21,6 +21,9 @@ public class Barri {
         for (Fumador fum : fumadors) {
             fum.start();
         }
+
+        // Inicia el hilo del estanco
+        estanc.start();
     }
 
     // Método para esperar a que los fumadores terminen
@@ -37,7 +40,7 @@ public class Barri {
     // Método principal
     public static void main(String[] args) {
         Barri barri = new Barri(); // Crea el barrio
-        barri.inicaFumadors(); // Inicia los fumadores
+        barri.inicaFumadors(); // Inicia los fumadores y el estanco
         barri.esperaFumadors(); // Espera a que los fumadores terminen
         barri.estanc.tancarEstanc(); // Cierra el estanco
     }
