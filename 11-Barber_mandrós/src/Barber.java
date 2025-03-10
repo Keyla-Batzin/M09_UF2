@@ -1,36 +1,34 @@
 public class Barber extends Thread {
-    private String nom;
+    private final String nom;
 
-    public Barber(String nom){
+    public Barber(String nom) {
         this.nom = nom;
     }
 
-    public void tallaCabell(){
-        try {
-            Thread.sleep(900 + (int) (Math.random() * 100)); // 0,9s a 0,1s
-        } catch (Exception e) {
-            e.printStackTrace();
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    public void dorm(){
-        try {
-            wait();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Thread.currentThread().interrupt();
-        }
-    }
-
     @Override
-    public void run(){
+    public void run() {
         while (true) {
-            Barberia.condBarber;
-            if(){ // Condicion para saber si hay clientes (condBarber)
-                notify(); // Depiesrta al barbero
-            }else{
-                dorm();
+            Client client;
+            synchronized (Barberia.condBarber) {
+                while ((client = Barberia.barberia.seguentClient()) == null) {
+                    try {
+                        System.out.println("Ningú en espera");
+                        System.out.println("Barber " + nom + " dormint");
+                        Barberia.condBarber.wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+            }
+
+            System.out.println("Li toca al client " + client.getNom());
+            client.tallarSeElCabell();
+            try {
+                Thread.sleep(900 + (int) (Math.random() * 100));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
             }
         }
     }
